@@ -23,14 +23,14 @@ services:
       POSTGRES_USER: dbuser
       POSTGRES_PASSWORD: 12345
     healthcheck:
-        test: [ "CMD-SHELL", "pg_isready -q -d $POSTGRES_DB -U $POSTGRES_USER" ]
-        interval: 5s
-        timeout: 5s
-        retries: 10
+      test: [ "CMD-SHELL", "pg_isready -q -d $POSTGRES_DB -U $POSTGRES_USER" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
 
   ewm-service:
     build: ./main-service
-    container_name: container_ewm
+    container_name: ewm-main-server
     ports:
       - "8080:8080"
     depends_on:
@@ -40,6 +40,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://ewm-db:5432/mainservice
       SPRING_DATASOURCE_USERNAME: dbuser
       SPRING_DATASOURCE_PASSWORD: 12345
+      STATS_SERVER_URL: http://stats-server:9090
 
   ewm-db:
     image: postgres:16.3
@@ -51,7 +52,7 @@ services:
       POSTGRES_USER: dbuser
       POSTGRES_PASSWORD: 12345
     healthcheck:
-        test: [ "CMD-SHELL", "pg_isready -q -d $POSTGRES_DB -U $POSTGRES_USER" ]
-        interval: 5s
-        timeout: 5s
-        retries: 10
+      test: [ "CMD-SHELL", "pg_isready -q -d $POSTGRES_DB -U $POSTGRES_USER" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
