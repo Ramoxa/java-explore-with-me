@@ -22,20 +22,15 @@ public class CategoryPublicController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public List<CategoryDto> getCategoryPublic(HttpServletRequest request,
-                                               @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
-                                               @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
-        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'",
-                request.getMethod(), request.getRequestURI(), request.getQueryString());
+    public List<CategoryDto> getCategoryPublic(HttpServletRequest request, @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from, @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
+        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'", request.getMethod(), request.getRequestURI(), request.getQueryString());
         log.info("Запрошен список категорий  from={}, size={}", from, size);
         return categoryService.getCategoryPublic(from, size);
     }
 
     @GetMapping("/{catId}")
-    public CategoryDto getCategoryByIdPublic(HttpServletRequest request,
-                                             @Positive @PathVariable Long catId) {
-        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'",
-                request.getMethod(), request.getRequestURI(), request.getQueryString());
+    public CategoryDto getCategoryByIdPublic(HttpServletRequest request, @Positive @PathVariable Long catId) {
+        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'", request.getMethod(), request.getRequestURI(), request.getQueryString());
         log.info("Запрошена категоря с catId={}", catId);
         return categoryService.getCategoryByIdPublic(catId);
     }

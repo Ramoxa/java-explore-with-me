@@ -2,11 +2,7 @@ package ru.practicum.ewm.client.stats;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.lang.Nullable;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
@@ -18,19 +14,37 @@ import java.util.Map;
 public class BaseClient {
     protected final RestTemplate rest;
 
+    private static ResponseEntity<Object> prepareGatewayResponse(ResponseEntity<Object> response) {
+        if (response.getStatusCode().is2xxSuccessful()) {
+            return response;
+        }
+        ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.status(response.getStatusCode());
+        if (response.hasBody()) {
+            return responseBuilder.body(response.getBody());
+        }
+        return responseBuilder.build();
+    }
+
+    private static <T> ResponseEntity<T> prepareGatewayResponseType(ResponseEntity<T> response) {
+        if (response.getStatusCode().is2xxSuccessful()) {
+            return response;
+        }
+        ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.status(response.getStatusCode());
+        if (response.hasBody()) {
+            return responseBuilder.body(response.getBody());
+        }
+        return responseBuilder.build();
+    }
+
     protected ResponseEntity<Object> get(String path, @Nullable Map<String, Object> parameters) {
         return makeAndSendRequest(HttpMethod.GET, path, parameters, null);
     }
 
-    protected <F> ResponseEntity<F> getList(String uri, @Nullable Map<String, Object> parameters,
-                                            ParameterizedTypeReference<F> type) {
+    protected <F> ResponseEntity<F> getList(String uri, @Nullable Map<String, Object> parameters, ParameterizedTypeReference<F> type) {
         return sendRequestType(uri, HttpMethod.GET, null, parameters, type);
     }
 
-    private <T, F> ResponseEntity<F> sendRequestType(String path, HttpMethod method,
-                                                     @Nullable T body,
-                                                     @Nullable Map<String, Object> parameters,
-                                                     ParameterizedTypeReference<F> type) {
+    private <T, F> ResponseEntity<F> sendRequestType(String path, HttpMethod method, @Nullable T body, @Nullable Map<String, Object> parameters, ParameterizedTypeReference<F> type) {
         HttpEntity<T> requestEntity = new HttpEntity<>(body, defaultHeaders());
 
         ResponseEntity<F> statsServerResponse;
@@ -68,28 +82,6 @@ public class BaseClient {
             return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsByteArray());
         }
         return prepareGatewayResponse(statsServerResponse);
-    }
-
-    private static ResponseEntity<Object> prepareGatewayResponse(ResponseEntity<Object> response) {
-        if (response.getStatusCode().is2xxSuccessful()) {
-            return response;
-        }
-        ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.status(response.getStatusCode());
-        if (response.hasBody()) {
-            return responseBuilder.body(response.getBody());
-        }
-        return responseBuilder.build();
-    }
-
-    private static <T> ResponseEntity<T> prepareGatewayResponseType(ResponseEntity<T> response) {
-        if (response.getStatusCode().is2xxSuccessful()) {
-            return response;
-        }
-        ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.status(response.getStatusCode());
-        if (response.hasBody()) {
-            return responseBuilder.body(response.getBody());
-        }
-        return responseBuilder.build();
     }
 
     private HttpHeaders defaultHeaders() {

@@ -55,17 +55,13 @@ public class EventServiceImpl implements EventService {
 
         int pageNumber = from / size;
         Pageable pageable = PageRequest.of(pageNumber, size);
-        return eventRepository.getEventsByInitiatorId(userId, pageable)
-                .stream()
-                .map(EventMapper::toEventShortDto)
-                .collect(Collectors.toList());
+        return eventRepository.getEventsByInitiatorId(userId, pageable).stream().map(EventMapper::toEventShortDto).collect(Collectors.toList());
     }
 
     @Transactional
     @Override
     public EventFullDto addEventPrivate(Long userId, NewEventDto newEventDto) {
-        LocalDateTime start = LocalDateTime.parse(newEventDto.getEventDate(),
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        LocalDateTime start = LocalDateTime.parse(newEventDto.getEventDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
         if (start.isBefore(LocalDateTime.now().plusHours(2))) {
             throw new IllegalArgumentException("Incorrectly  time");
@@ -82,16 +78,14 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @Override
     public EventFullDto getEventPrivate(Long userId, Long eventId) {
-        return EventMapper.toEventFullDto(eventRepository.findByInitiatorIdAndId(userId, eventId).orElseThrow(() ->
-                new NotFoundException("Событие (id = " + eventId + ") или пользователь (id = " + userId + ") не найдены")));
+        return EventMapper.toEventFullDto(eventRepository.findByInitiatorIdAndId(userId, eventId).orElseThrow(() -> new NotFoundException("Событие (id = " + eventId + ") или пользователь (id = " + userId + ") не найдены")));
     }
 
 
     @Transactional
     @Override
     public EventFullDto updateEventPrivate(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest) {
-        Event oldEvent = eventRepository.findByInitiatorIdAndId(userId, eventId).orElseThrow(() ->
-                new NotFoundException("Событие (id = " + eventId + ") или пользователь (id = " + userId + ") не найдены"));
+        Event oldEvent = eventRepository.findByInitiatorIdAndId(userId, eventId).orElseThrow(() -> new NotFoundException("Событие (id = " + eventId + ") или пользователь (id = " + userId + ") не найдены"));
 
         validateUpdateEventPrivate(oldEvent, updateEventUserRequest);
 
@@ -100,8 +94,7 @@ public class EventServiceImpl implements EventService {
             updateEventUserRequest.setLocation(location);
         }
 
-        Category newCategory = updateEventUserRequest.getCategory() == null ?
-                oldEvent.getCategory() : categoryRepository.getById(updateEventUserRequest.getCategory());
+        Category newCategory = updateEventUserRequest.getCategory() == null ? oldEvent.getCategory() : categoryRepository.getById(updateEventUserRequest.getCategory());
 
         Event upEvent = oldEvent;
         if (updateEventUserRequest.getStateAction() != null) {
@@ -131,8 +124,7 @@ public class EventServiceImpl implements EventService {
 
         LocalDateTime start = oldEvent.getEventDate();
         if (updateEventUserRequest.getEventDate() != null) {
-            if (LocalDateTime.parse(updateEventUserRequest.getEventDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-                    .isBefore(start.plusHours(2))) {
+            if (LocalDateTime.parse(updateEventUserRequest.getEventDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).isBefore(start.plusHours(2))) {
                 throw new IllegalArgumentException("Время начала " + start + "раньше или равно eventDate");
             }
         }
@@ -141,35 +133,27 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @Override
     public List<ParticipationRequestDto> getRequestsEventsUserPrivate(Long userId, Long eventId) {
-        return participationRepository.getParticipationRequestsByEvent(eventId)
-                .stream()
-                .map(ParticipationMapper::toParticipationRequestDto)
-                .collect(Collectors.toList());
+        return participationRepository.getParticipationRequestsByEvent(eventId).stream().map(ParticipationMapper::toParticipationRequestDto).collect(Collectors.toList());
     }
 
     @Transactional
     @Override
-    public EventRequestStatusUpdateResult updateEventRequestStatusPrivate(Long userId,
-                                                                          Long eventId,
-                                                                          EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest) {
-        // Получаем событие по идентификатору и идентификатору инициатора
-        Event event = eventRepository.findByInitiatorIdAndId(userId, eventId).orElseThrow(() ->
-                new NotFoundException("Событие (id = " + eventId + ") или пользователь (id = " + userId + ") не найдены"));
+    public EventRequestStatusUpdateResult updateEventRequestStatusPrivate(Long userId, Long eventId, EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest) {
 
-        // Определяем статус, который необходимо установить
+        Event event = eventRepository.findByInitiatorIdAndId(userId, eventId).orElseThrow(() -> new NotFoundException("Событие (id = " + eventId + ") или пользователь (id = " + userId + ") не найдены"));
+
+
         Status status = eventRequestStatusUpdateRequest.getStatus();
 
-        // Получаем список запросов на участие по идентификаторам
+
         List<ParticipationRequest> participationRequests = participationRepository.findByIdIn(eventRequestStatusUpdateRequest.getRequestIds());
 
-        // Если лимит участников равен 0 и не требуется модерация запросов
+
         if (event.getParticipantLimit() == 0 && !event.getRequestModeration()) {
             return buildResult(new ArrayList<>(), new ArrayList<>());
         }
 
-        if (event.getConfirmedRequests() != null
-                && event.getParticipantLimit() > 0
-                && event.getConfirmedRequests().equals(Long.valueOf(event.getParticipantLimit()))) {
+        if (event.getConfirmedRequests() != null && event.getParticipantLimit() > 0 && event.getConfirmedRequests().equals(Long.valueOf(event.getParticipantLimit()))) {
             throw new OverflowLimitException("Переполнение запросов");
         }
 
@@ -183,31 +167,27 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
-    public List<EventFullDto> getEventsAdmin(List<Long> users, List<String> states, List<Long> categories,
-                                             LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size) {
+    public List<EventFullDto> getEventsAdmin(List<Long> users, List<String> states, List<Long> categories, LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size) {
 
         int pageNumber = from / size;
         Pageable pageable = PageRequest.of(pageNumber, size);
 
-        // Преобразуем строковые состояния в перечисление State
+
         List<State> stateEnum = (states != null) ? states.stream().map(State::valueOf).collect(Collectors.toList()) : null;
 
-        // Проверка корректности диапазона дат
+
         if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
             throw new IllegalArgumentException("Дата начала не может быть позже даты окончания");
         }
 
-        // Создание спецификации для динамического поиска событий
+
         Specification<Event> specification = buildSpecification(users, stateEnum, categories, rangeStart, rangeEnd);
 
-        // Поиск событий по спецификации и преобразование их в DTO
-        return eventRepository.findAll(specification, pageable).stream()
-                .map(EventMapper::toEventFullDto)
-                .collect(Collectors.toList());
+
+        return eventRepository.findAll(specification, pageable).stream().map(EventMapper::toEventFullDto).collect(Collectors.toList());
     }
 
-    private Specification<Event> buildSpecification(List<Long> users, List<State> states, List<Long> categories,
-                                                    LocalDateTime start, LocalDateTime end) {
+    private Specification<Event> buildSpecification(List<Long> users, List<State> states, List<Long> categories, LocalDateTime start, LocalDateTime end) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -244,8 +224,7 @@ public class EventServiceImpl implements EventService {
             updateEventAdminRequest.setLocation(location);
         }
 
-        Category newCategory = updateEventAdminRequest.getCategory() == null ?
-                oldEvent.getCategory() : categoryRepository.getById(updateEventAdminRequest.getCategory());
+        Category newCategory = updateEventAdminRequest.getCategory() == null ? oldEvent.getCategory() : categoryRepository.getById(updateEventAdminRequest.getCategory());
 
         Event upEvent = oldEvent;
         if (updateEventAdminRequest.getStateAction() != null) {
@@ -292,10 +271,7 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
-    public List<EventShortDto> getEventsAndStatsPublic(HttpServletRequest request, String text,
-                                                       List<Long> categories, Boolean paid,
-                                                       LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable,
-                                                       String sort, Integer from, Integer size) {
+    public List<EventShortDto> getEventsAndStatsPublic(HttpServletRequest request, String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable, String sort, Integer from, Integer size) {
         int pageNumber = from / size;
         Pageable pageable = PageRequest.of(pageNumber, size);
         LocalDateTime timeNow = LocalDateTime.now();
@@ -304,25 +280,19 @@ public class EventServiceImpl implements EventService {
             throw new IllegalArgumentException("Time start " + rangeStart + " after end " + rangeEnd);
         }
 
-        // Подготовка параметров для поиска
+
         String textPattern = (text != null) ? "%" + text + "%" : null;
 
         List<Event> list;
 
-        // Определение, использовать ли период времени или нет
+
         if (rangeStart == null && rangeEnd == null) {
             list = fetchEventsNoPeriod(State.PUBLISHED.toString(), categories, paid, textPattern, timeNow, onlyAvailable, sort, pageable);
         } else {
             list = fetchEventsWithPeriod(State.PUBLISHED.toString(), categories, paid, textPattern, rangeStart, rangeEnd, onlyAvailable, sort, pageable);
         }
 
-        EndpointHitDto endpointHitDto =  EndpointHitDto.builder()
-                .id(null)
-                .app("main-service")
-                .uri(request.getRequestURI())
-                .ip(request.getRemoteAddr())
-                .timestamp(timeNow.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
-                .build();
+        EndpointHitDto endpointHitDto = EndpointHitDto.builder().id(null).app("main-service").uri(request.getRequestURI()).ip(request.getRemoteAddr()).timestamp(timeNow.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))).build();
 
         try {
             statsClient.addRequest(endpointHitDto);
@@ -334,33 +304,22 @@ public class EventServiceImpl implements EventService {
             return new ArrayList<>();
         }
 
-        return list.stream()
-                .map(EventMapper::toEventShortDto)
-                .collect(Collectors.toList());
+        return list.stream().map(EventMapper::toEventShortDto).collect(Collectors.toList());
     }
 
-    // Метод для получения событий без учета периода времени
-    private List<Event> fetchEventsNoPeriod(String state, List<Long> categories, Boolean paid, String text,
-                                            LocalDateTime timeNow, Boolean onlyAvailable, String sort,
-                                            Pageable pageable) {
+
+    private List<Event> fetchEventsNoPeriod(String state, List<Long> categories, Boolean paid, String text, LocalDateTime timeNow, Boolean onlyAvailable, String sort, Pageable pageable) {
         if ("EVENT_DATE".equals(sort)) {
-            return onlyAvailable ?
-                    fetchSortedByEventDateAvailableNoPeriod(state, categories, paid, text, timeNow, pageable) :
-                    fetchSortedByEventDateNoPeriod(state, categories, paid, text, timeNow, pageable);
+            return onlyAvailable ? fetchSortedByEventDateAvailableNoPeriod(state, categories, paid, text, timeNow, pageable) : fetchSortedByEventDateNoPeriod(state, categories, paid, text, timeNow, pageable);
         } else if ("VIEWS".equals(sort)) {
-            return onlyAvailable ?
-                    fetchSortedByViewsAvailableNoPeriod(state, categories, paid, text, timeNow, pageable) :
-                    fetchSortedByViewsNoPeriod(state, categories, paid, text, timeNow, pageable);
+            return onlyAvailable ? fetchSortedByViewsAvailableNoPeriod(state, categories, paid, text, timeNow, pageable) : fetchSortedByViewsNoPeriod(state, categories, paid, text, timeNow, pageable);
         } else {
-            return onlyAvailable ?
-                    fetchAvailableNoPeriod(state, categories, paid, text, timeNow, pageable) :
-                    fetchDefaultNoPeriod(state, categories, paid, text, timeNow, pageable);
+            return onlyAvailable ? fetchAvailableNoPeriod(state, categories, paid, text, timeNow, pageable) : fetchDefaultNoPeriod(state, categories, paid, text, timeNow, pageable);
         }
     }
 
-    // Пример методов для различных фильтров и сортировок
-    private List<Event> fetchSortedByEventDateAvailableNoPeriod(String state, List<Long> categories, Boolean paid,
-                                                                String text, LocalDateTime timeNow, Pageable pageable) {
+
+    private List<Event> fetchSortedByEventDateAvailableNoPeriod(String state, List<Long> categories, Boolean paid, String text, LocalDateTime timeNow, Pageable pageable) {
         if (categories != null && text != null) {
             return eventRepository.getEventsNoPeriodSortEventDateAvailableCategoryText(state, categories, timeNow, text, pageable);
         } else if (text == null && categories != null) {
@@ -372,8 +331,7 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private List<Event> fetchSortedByEventDateNoPeriod(String state, List<Long> categories, Boolean paid,
-                                                       String text, LocalDateTime timeNow, Pageable pageable) {
+    private List<Event> fetchSortedByEventDateNoPeriod(String state, List<Long> categories, Boolean paid, String text, LocalDateTime timeNow, Pageable pageable) {
         if (categories != null && text != null) {
             return eventRepository.getEventsNoPeriodSortEventDateCategoryText(state, categories, timeNow, text, pageable);
         } else if (text == null && categories != null) {
@@ -385,8 +343,7 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private List<Event> fetchSortedByViewsAvailableNoPeriod(String state, List<Long> categories, Boolean paid, String text,
-                                                            LocalDateTime timeNow, Pageable pageable) {
+    private List<Event> fetchSortedByViewsAvailableNoPeriod(String state, List<Long> categories, Boolean paid, String text, LocalDateTime timeNow, Pageable pageable) {
         if (categories != null && text != null) {
             return eventRepository.getEventsNoPeriodSortViewsAvailableCategoryText(state, categories, timeNow, text, pageable);
         } else if (categories != null) {
@@ -398,8 +355,7 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private List<Event> fetchSortedByViewsNoPeriod(String state, List<Long> categories, Boolean paid, String text,
-                                                   LocalDateTime timeNow, Pageable pageable) {
+    private List<Event> fetchSortedByViewsNoPeriod(String state, List<Long> categories, Boolean paid, String text, LocalDateTime timeNow, Pageable pageable) {
         if (categories != null && text != null) {
             return eventRepository.getEventsNoPeriodSortViewsCategoryText(state, categories, timeNow, text, pageable);
         } else if (categories != null) {
@@ -411,8 +367,7 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private List<Event> fetchAvailableNoPeriod(String state, List<Long> categories, Boolean paid, String text,
-                                               LocalDateTime timeNow, Pageable pageable) {
+    private List<Event> fetchAvailableNoPeriod(String state, List<Long> categories, Boolean paid, String text, LocalDateTime timeNow, Pageable pageable) {
         if (categories != null && text != null) {
             return eventRepository.getEventsNoPeriodAvailableCategoryText(state, categories, timeNow, text, pageable);
         } else if (categories != null) {
@@ -424,8 +379,7 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private List<Event> fetchDefaultNoPeriod(String state, List<Long> categories, Boolean paid, String text,
-                                             LocalDateTime timeNow, Pageable pageable) {
+    private List<Event> fetchDefaultNoPeriod(String state, List<Long> categories, Boolean paid, String text, LocalDateTime timeNow, Pageable pageable) {
         if (categories != null && text != null) {
             return eventRepository.getEventsNoPeriodCategoryText(state, categories, timeNow, text, pageable);
         } else if (categories != null) {
@@ -437,10 +391,8 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    // Метод для получения событий с учетом периода времени
-    private List<Event> fetchEventsWithPeriod(String state, List<Long> categories, Boolean paid, String text,
-                                              LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable,
-                                              String sort, Pageable pageable) {
+
+    private List<Event> fetchEventsWithPeriod(String state, List<Long> categories, Boolean paid, String text, LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable, String sort, Pageable pageable) {
         if ("EVENT_DATE".equals(sort)) {
             return fetchSortedByEventDateWithPeriod(state, categories, text, rangeStart, rangeEnd, onlyAvailable, pageable);
         } else if ("VIEWS".equals(sort)) {
@@ -450,10 +402,8 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    // Вспомогательный метод для событий с сортировкой по EVENT_DATE и периодом
-    private List<Event> fetchSortedByEventDateWithPeriod(String state, List<Long> categories, String text,
-                                                         LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable,
-                                                         Pageable pageable) {
+
+    private List<Event> fetchSortedByEventDateWithPeriod(String state, List<Long> categories, String text, LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable, Pageable pageable) {
         if (onlyAvailable) {
             if (categories != null && text != null) {
                 return eventRepository.getEventsPeriodSortEventDateAvailableCategoryText(state, categories, rangeStart, rangeEnd, text, pageable);
@@ -477,10 +427,8 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    // Вспомогательный метод для событий с сортировкой по VIEWS и периодом
-    private List<Event> fetchSortedByViewsWithPeriod(String state, List<Long> categories, String text,
-                                                     LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable,
-                                                     Pageable pageable) {
+
+    private List<Event> fetchSortedByViewsWithPeriod(String state, List<Long> categories, String text, LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable, Pageable pageable) {
         if (onlyAvailable) {
             if (categories != null && text != null) {
                 return eventRepository.getEventsPeriodSortViewsAvailableCategoryText(state, categories, rangeStart, rangeEnd, text, pageable);
@@ -504,10 +452,8 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    // Вспомогательный метод для событий без сортировки и периода
-    private List<Event> fetchDefaultWithPeriod(String state, List<Long> categories, String text,
-                                               LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable,
-                                               Pageable pageable) {
+
+    private List<Event> fetchDefaultWithPeriod(String state, List<Long> categories, String text, LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable, Pageable pageable) {
         if (onlyAvailable) {
             if (categories != null && text != null) {
                 return eventRepository.getEventsPeriodAvailableCategoryText(state, categories, rangeStart, rangeEnd, text, pageable);
@@ -551,52 +497,41 @@ public class EventServiceImpl implements EventService {
             eventRepository.save(event);
         }
 
-        EndpointHitDto endpointHitDto =  EndpointHitDto.builder()
-                .id(null)
-                .app("main-service")
-                .uri(request.getRequestURI())
-                .ip(request.getRemoteAddr())
-                .timestamp(timeNow.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
-                .build();
+        EndpointHitDto endpointHitDto = EndpointHitDto.builder().id(null).app("main-service").uri(request.getRequestURI()).ip(request.getRemoteAddr()).timestamp(timeNow.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))).build();
 
         statsClient.addRequest(endpointHitDto);
 
         return EventMapper.toEventFullDto(event);
     }
 
-    // Подтверждение запроса
+
     private void confirmRequest(Event event, ParticipationRequest request) {
         request.setStatus(Status.CONFIRMED);
         event.setConfirmedRequests(event.getConfirmedRequests() + 1);
         participationRepository.saveAndFlush(request);
     }
 
-    // Отклонение запроса
+
     private void rejectRequest(ParticipationRequest request) {
         request.setStatus(Status.REJECTED);
         participationRepository.saveAndFlush(request);
     }
 
-    // Создание списка отклоненных запросов
+
     private List<ParticipationRequestDto> buildRejectedDtos(List<ParticipationRequest> allRequests, List<ParticipationRequest> confirmedRequests) {
         List<ParticipationRequest> remainingRequests = new ArrayList<>(allRequests);
         remainingRequests.removeAll(confirmedRequests);
         return mapToDtos(remainingRequests);
     }
 
-    // Преобразование запросов в DTO
+
     private List<ParticipationRequestDto> mapToDtos(List<ParticipationRequest> requests) {
-        return requests.stream()
-                .map(ParticipationMapper::toParticipationRequestDto)
-                .collect(Collectors.toList());
+        return requests.stream().map(ParticipationMapper::toParticipationRequestDto).collect(Collectors.toList());
     }
 
-    // Создание результата с подтвержденными и отклоненными запросами
+
     private EventRequestStatusUpdateResult buildResult(List<ParticipationRequestDto> confirmedRequests, List<ParticipationRequestDto> rejectedRequests) {
-        return EventRequestStatusUpdateResult.builder()
-                .confirmedRequests(confirmedRequests)
-                .rejectedRequests(rejectedRequests)
-                .build();
+        return EventRequestStatusUpdateResult.builder().confirmedRequests(confirmedRequests).rejectedRequests(rejectedRequests).build();
     }
 
     private EventRequestStatusUpdateResult processRequestsWithoutModeration(Event event, Status status, List<ParticipationRequest> participationRequests) {

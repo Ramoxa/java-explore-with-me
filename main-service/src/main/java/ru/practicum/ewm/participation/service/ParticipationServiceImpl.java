@@ -35,10 +35,7 @@ public class ParticipationServiceImpl implements ParticipationService {
         if (userRepository.findById(userId).isEmpty()) {
             throw new NotFoundException("Запрашиваемый объект не найден");
         }
-        List<Long> eventIds = eventRepository.getEventsByInitiatorId(userId)
-                .stream()
-                .map(Event::getId)
-                .collect(Collectors.toList());
+        List<Long> eventIds = eventRepository.getEventsByInitiatorId(userId).stream().map(Event::getId).collect(Collectors.toList());
         List<ParticipationRequest> list;
         if (eventIds.isEmpty()) {
             list = participationRepository.getParticipationRequestsByRequester(userId);
@@ -51,22 +48,16 @@ public class ParticipationServiceImpl implements ParticipationService {
     @Transactional
     @Override
     public ParticipationRequestDto addParticipationRequestPrivate(Long userId, Long eventId) {
-        // Получение события
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Event with id " + eventId + " not found"));
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("Event with id " + eventId + " not found"));
 
-        // Проверка существования запроса на участие
+
         List<ParticipationRequest> existingRequests = participationRepository.getParticipationRequestsByRequesterAndEvent(userId, eventId);
         validateAddParticipationRequestPrivate(event, existingRequests, userId);
 
-        // Создание нового запроса на участие
-        ParticipationRequest participationRequest = ParticipationRequest.builder()
-                .created(LocalDateTime.now())
-                .event(eventId)
-                .requester(userId)
-                .build();
 
-        // Обновление статуса запроса и количества подтвержденных запросов
+        ParticipationRequest participationRequest = ParticipationRequest.builder().created(LocalDateTime.now()).event(eventId).requester(userId).build();
+
+
         if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
             participationRequest.setStatus(Status.CONFIRMED);
             event.setConfirmedRequests(event.getConfirmedRequests() + 1);
@@ -74,7 +65,7 @@ public class ParticipationServiceImpl implements ParticipationService {
             participationRequest.setStatus(Status.PENDING);
         }
 
-        // Сохранение изменений в базе данных
+
         eventRepository.save(event);
         ParticipationRequest newParticipationRequest = participationRepository.save(participationRequest);
 
@@ -102,8 +93,7 @@ public class ParticipationServiceImpl implements ParticipationService {
             participationRequest.setStatus(Status.CANCELED);
         }
 
-        return ParticipationMapper
-                .toParticipationRequestDto(participationRepository.save(participationRequest));
+        return ParticipationMapper.toParticipationRequestDto(participationRepository.save(participationRequest));
     }
 
     private void validateAddParticipationRequestPrivate(Event event, List<ParticipationRequest> participationRequestList, Long userId) {
@@ -116,9 +106,7 @@ public class ParticipationServiceImpl implements ParticipationService {
             throw new RepeatParticipationRequestException("Добавлен повторный запрос");
         } else if (event.getState() == null || !event.getState().equals(State.PUBLISHED)) {
             throw new RepeatParticipationRequestException("Требуется статус PUBLISHED ");
-        } else if (event.getConfirmedRequests() != null
-                && event.getParticipantLimit() > 0
-                && event.getConfirmedRequests().equals(Long.valueOf(event.getParticipantLimit()))) {
+        } else if (event.getConfirmedRequests() != null && event.getParticipantLimit() > 0 && event.getConfirmedRequests().equals(Long.valueOf(event.getParticipantLimit()))) {
             throw new OverflowLimitException("Переполнение запросов");
         }
     }
