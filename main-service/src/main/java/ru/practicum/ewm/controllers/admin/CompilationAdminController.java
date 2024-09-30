@@ -24,22 +24,29 @@ public class CompilationAdminController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public CompilationDto addCompilationAdmin(HttpServletRequest request, @Valid @RequestBody NewCompilationDto newCompilationDto) {
-        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'", request.getMethod(), request.getRequestURI(), request.getQueryString());
+    public CompilationDto addCompilationAdmin(HttpServletRequest request,
+                                              @Valid @RequestBody NewCompilationDto newCompilationDto) {
+        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'",
+                request.getMethod(), request.getRequestURI(), request.getQueryString());
         log.info("Добавлена подборка с названием={}", newCompilationDto.getTitle());
         return compilationService.addCompilationAdmin(newCompilationDto);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{compId}")
-    public void deleteCompilationByIdAdmin(HttpServletRequest request, @Positive @PathVariable("compId") Long compId) {
-        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'", request.getMethod(), request.getRequestURI(), request.getQueryString());
+    public void deleteCompilationByIdAdmin(HttpServletRequest request,
+                                           @Positive @PathVariable("compId") Long compId) {
+        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'",
+                request.getMethod(), request.getRequestURI(), request.getQueryString());
         compilationService.deleteCompilationByIdAdmin(compId);
     }
 
     @PatchMapping("/{compId}")
-    public CompilationDto updateCompilationByIdAdmin(HttpServletRequest request, @Positive @PathVariable Long compId, @Valid @RequestBody UpdateCompilationRequest updateCompilationRequest) {
-        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'", request.getMethod(), request.getRequestURI(), request.getQueryString());
+    public CompilationDto updateCompilationByIdAdmin(HttpServletRequest request,
+                                                     @Positive @PathVariable Long compId,
+                                                     @Valid @RequestBody UpdateCompilationRequest updateCompilationRequest) {
+        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'",
+                request.getMethod(), request.getRequestURI(), request.getQueryString());
         return compilationService.updateCompilationByIdAdmin(compId, updateCompilationRequest);
     }
 

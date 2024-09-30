@@ -25,20 +25,31 @@ public class EventPublicController {
     private final EventService eventService;
 
     @GetMapping
-    public List<EventShortDto> getEventsAndStatsPublic(HttpServletRequest request, @RequestParam(required = false) String text, @RequestParam(required = false) List<Long> categories, @RequestParam(required = false) Boolean paid,
+    public List<EventShortDto> getEventsAndStatsPublic(HttpServletRequest request,
+                                                       @RequestParam(required = false) String text,
+                                                       @RequestParam(required = false) List<Long> categories,
+                                                       @RequestParam(required = false) Boolean paid,
 
-                                                       @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(required = false) LocalDateTime rangeStart,
+                                                       @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+                                                       @RequestParam(required = false) LocalDateTime rangeStart,
 
-                                                       @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(required = false) LocalDateTime rangeEnd,
+                                                       @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+                                                       @RequestParam(required = false) LocalDateTime rangeEnd,
 
-                                                       @RequestParam(defaultValue = "false") Boolean onlyAvailable, @RequestParam(required = false) String sort, @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from, @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
-        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'", request.getMethod(), request.getRequestURI(), request.getQueryString());
+                                                       @RequestParam(defaultValue = "false") Boolean onlyAvailable,
+                                                       @RequestParam(required = false) String sort,
+                                                       @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                                       @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
+        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'",
+                request.getMethod(), request.getRequestURI(), request.getQueryString());
         return eventService.getEventsAndStatsPublic(request, text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
     }
 
     @GetMapping("/{Id}")
-    public EventFullDto getEventByIdAndStatsPublic(HttpServletRequest request, @Positive @PathVariable("Id") Long eventId) {
-        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'", request.getMethod(), request.getRequestURI(), request.getQueryString());
+    public EventFullDto getEventByIdAndStatsPublic(HttpServletRequest request,
+                                                   @Positive @PathVariable("Id") Long eventId) {
+        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'",
+                request.getMethod(), request.getRequestURI(), request.getQueryString());
         return eventService.getEventByIdAndStatsPublic(request, eventId);
     }
 }

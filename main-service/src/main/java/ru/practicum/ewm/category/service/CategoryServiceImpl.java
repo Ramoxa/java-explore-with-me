@@ -32,7 +32,7 @@ public class CategoryServiceImpl implements CategoryService {
         if (categoryRepository.existsByName(newCategoryDto.getName())) {
             throw new DuplicateNameException("Задублировалось имя категории");
         }
-        return CategoryMapper.toCategoryDto(categoryRepository.save(CategoryMapper.toCategory(newCategoryDto)));
+            return CategoryMapper.toCategoryDto(categoryRepository.save(CategoryMapper.toCategory(newCategoryDto)));
     }
 
     @Transactional
@@ -69,7 +69,10 @@ public class CategoryServiceImpl implements CategoryService {
         int pageNumber = from / size;
         Pageable pageable = PageRequest.of(pageNumber, size);
 
-        return categoryRepository.findAll(pageable).stream().map(CategoryMapper::toCategoryDto).collect(Collectors.toList());
+        return categoryRepository.findAll(pageable)
+                .stream()
+                .map(CategoryMapper::toCategoryDto)
+                .collect(Collectors.toList());
     }
 
 

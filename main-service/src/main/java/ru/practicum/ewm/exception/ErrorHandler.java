@@ -26,7 +26,10 @@ public class ErrorHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiError handleIllegalArgumentException(IllegalArgumentException ex) throws IOException {
-        return buildApiError(Collections.singletonList(getStackTraceAsString(ex)), HttpStatus.BAD_REQUEST, "Некорректный запрос", ex.getLocalizedMessage());
+        return buildApiError(Collections.singletonList(getStackTraceAsString(ex)),
+                HttpStatus.BAD_REQUEST,
+                "Некорректный запрос",
+                ex.getLocalizedMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -36,7 +39,10 @@ public class ErrorHandler {
         for (FieldError error : ex.getBindingResult().getFieldErrors()) {
             errors.add(error.getField());
         }
-        return buildApiError(errors, HttpStatus.BAD_REQUEST, "Запрашиваемый объект не найден", ex.getLocalizedMessage());
+        return buildApiError(errors,
+                HttpStatus.BAD_REQUEST,
+                "Запрашиваемый объект не найден",
+                ex.getLocalizedMessage());
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -46,65 +52,101 @@ public class ErrorHandler {
         for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
             errors.add(violation.getMessage());
         }
-        return buildApiError(errors, HttpStatus.BAD_REQUEST, "Запрашиваемый объект не найден", ex.getLocalizedMessage());
+        return buildApiError(errors,
+                HttpStatus.BAD_REQUEST,
+                "Запрашиваемый объект не найден",
+                ex.getLocalizedMessage());
     }
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ApiError handleNotFoundException(NotFoundException e) throws IOException {
-        return buildApiError(Collections.singletonList(getStackTraceAsString(e)), HttpStatus.NOT_FOUND, "Запрашиваемый объект не найден", e.getLocalizedMessage());
+        return buildApiError(Collections.singletonList(getStackTraceAsString(e)),
+                HttpStatus.NOT_FOUND,
+                "Запрашиваемый объект не найден",
+                e.getLocalizedMessage());
     }
 
     @ExceptionHandler(ValidationExceptionFindCategory.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handleValidationExceptionFindCategory(ValidationExceptionFindCategory e) throws IOException {
-        return buildApiError(Collections.singletonList(getStackTraceAsString(e)), HttpStatus.CONFLICT, "Для запрошенной операции условия не выполнены", e.getLocalizedMessage());
+        return buildApiError(Collections.singletonList(getStackTraceAsString(e)),
+                HttpStatus.CONFLICT,
+                "Для запрошенной операции условия не выполнены",
+                e.getLocalizedMessage());
     }
 
     @ExceptionHandler(DuplicateNameException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handleDuplicateNameException(DuplicateNameException e) throws IOException {
-        return buildApiError(Collections.singletonList(getStackTraceAsString(e)), HttpStatus.CONFLICT, "Произошло дублирование имени", e.getLocalizedMessage());
+        return buildApiError(Collections.singletonList(getStackTraceAsString(e)),
+                HttpStatus.CONFLICT,
+                "Произошло дублирование имени",
+                e.getLocalizedMessage());
     }
 
     @ExceptionHandler(DuplicateEmailException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handleDuplicateEmailException(DuplicateEmailException e) throws IOException {
-        return buildApiError(Collections.singletonList(getStackTraceAsString(e)), HttpStatus.CONFLICT, "Произошло дублирование почты", e.getLocalizedMessage());
+        return buildApiError(Collections.singletonList(getStackTraceAsString(e)),
+                HttpStatus.CONFLICT,
+                "Произошло дублирование почты",
+                e.getLocalizedMessage());
     }
 
     @ExceptionHandler(EventDateException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handleEventDateException(EventDateException e) throws IOException {
-        return buildApiError(Collections.singletonList(getStackTraceAsString(e)), HttpStatus.CONFLICT, "Некорректное время", e.getLocalizedMessage());
+        return buildApiError(Collections.singletonList(getStackTraceAsString(e)),
+                HttpStatus.CONFLICT,
+                "Некорректное время",
+                e.getLocalizedMessage());
     }
 
     @ExceptionHandler(StateArgumentException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handleStateArgumentException(StateArgumentException e) throws IOException {
-        return buildApiError(Collections.singletonList(getStackTraceAsString(e)), HttpStatus.CONFLICT, "Запрашиваемый объект не найден", e.getLocalizedMessage());
+        return buildApiError(Collections.singletonList(getStackTraceAsString(e)),
+                HttpStatus.CONFLICT,
+                "Запрашиваемый объект не найден",
+                e.getLocalizedMessage());
     }
 
     @ExceptionHandler(OverflowLimitException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handleOverflowLimitException(OverflowLimitException e) throws IOException {
-        return buildApiError(Collections.singletonList(getStackTraceAsString(e)), HttpStatus.CONFLICT, "Достигнут лимит памяти", e.getLocalizedMessage());
+        return buildApiError(Collections.singletonList(getStackTraceAsString(e)),
+                HttpStatus.CONFLICT,
+                "Достигнут лимит памяти",
+                e.getLocalizedMessage());
     }
 
     @ExceptionHandler(StatusParticipationRequestException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handleStatusParticipationRequestException(StatusParticipationRequestException e) throws IOException {
-        return buildApiError(Collections.singletonList(getStackTraceAsString(e)), HttpStatus.CONFLICT, "Получен статус NOT PENDING", e.getLocalizedMessage());
+        return buildApiError(Collections.singletonList(getStackTraceAsString(e)),
+                HttpStatus.CONFLICT,
+                "Получен статус NOT PENDING",
+                e.getLocalizedMessage());
     }
 
     @ExceptionHandler(RepeatParticipationRequestException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handleRepeatParticipationRequestException(RepeatParticipationRequestException e) throws IOException {
-        return buildApiError(Collections.singletonList(getStackTraceAsString(e)), HttpStatus.CONFLICT, "Повтор запроса", e.getLocalizedMessage());
+        return buildApiError(Collections.singletonList(getStackTraceAsString(e)),
+                HttpStatus.CONFLICT,
+                "Повтор запроса",
+                e.getLocalizedMessage());
     }
 
     private ApiError buildApiError(List<String> errors, HttpStatus status, String reason, String message) {
-        return ApiError.builder().errors(errors).status(status).reason(reason).message(message).timestamp(LocalDateTime.now().format(DATE_TIME_FORMATTER)).build();
+        return ApiError.builder()
+                .errors(errors)
+                .status(status)
+                .reason(reason)
+                .message(message)
+                .timestamp(LocalDateTime.now().format(DATE_TIME_FORMATTER))
+                .build();
     }
 
     private String getStackTraceAsString(Exception e) throws IOException {
