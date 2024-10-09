@@ -26,22 +26,29 @@ public class UserAdminController {
     private final UserService userService;
 
     @GetMapping
-    public List<UserDto> getUsers(HttpServletRequest request, @RequestParam(required = false) List<Long> ids, @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from, @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
-        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'", request.getMethod(), request.getRequestURI(), request.getQueryString());
+    public List<UserDto> getUsers(HttpServletRequest request,
+                                  @RequestParam(required = false) List<Long> ids,
+                                  @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                  @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
+        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'",
+                request.getMethod(), request.getRequestURI(), request.getQueryString());
         log.info("Запрошен юзер с userId={}, from={}, size={}", ids, from, size);
         return userService.getUsersAdmin(ids, from, size);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public UserDto addUser(HttpServletRequest request, @Valid @NonNull @RequestBody NewUserRequest newUserRequest) {
-        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'", request.getMethod(), request.getRequestURI(), request.getQueryString());
+    public UserDto addUser(HttpServletRequest request,
+                           @Valid @NonNull @RequestBody NewUserRequest newUserRequest) {
+        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'",
+                request.getMethod(), request.getRequestURI(), request.getQueryString());
         return userService.addUserAdmin(newUserRequest);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{userId}")
-    public void deleteUser(HttpServletRequest request, @NonNull @Positive @PathVariable("userId") Long userId) {
+    public void deleteUser(HttpServletRequest request,
+                           @NonNull @Positive @PathVariable("userId") Long userId) {
         log.info("удален юзер с id: " + userId);
         userService.deleteUserAdmin(userId);
     }

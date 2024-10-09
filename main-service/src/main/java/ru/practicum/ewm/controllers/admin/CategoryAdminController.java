@@ -23,22 +23,29 @@ public class CategoryAdminController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public CategoryDto addCategoryAdmin(HttpServletRequest request, @Valid @RequestBody NewCategoryDto newCategoryDto) {
-        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'", request.getMethod(), request.getRequestURI(), request.getQueryString());
+    public CategoryDto addCategoryAdmin(HttpServletRequest request,
+                                        @Valid @RequestBody NewCategoryDto newCategoryDto) {
+        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'",
+                request.getMethod(), request.getRequestURI(), request.getQueryString());
 
         return categoryService.addCategoryAdmin(newCategoryDto);
     }
 
     @PatchMapping("/{catId}")
-    public CategoryDto updateCategoryAdmin(HttpServletRequest request, @Positive @PathVariable Long catId, @Valid @RequestBody NewCategoryDto newCategoryDto) {
-        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'", request.getMethod(), request.getRequestURI(), request.getQueryString());
+    public CategoryDto updateCategoryAdmin(HttpServletRequest request,
+                                           @Positive @PathVariable Long catId,
+                                           @Valid @RequestBody NewCategoryDto newCategoryDto) {
+        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'",
+                request.getMethod(), request.getRequestURI(), request.getQueryString());
         return categoryService.updateCategoryAdmin(catId, newCategoryDto);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{catId}")
-    public void deleteCategoryAdmin(HttpServletRequest request, @Positive @PathVariable("catId") Long catId) {
-        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'", request.getMethod(), request.getRequestURI(), request.getQueryString());
+    public void deleteCategoryAdmin(HttpServletRequest request,
+                                    @Positive @PathVariable("catId") Long catId) {
+        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'",
+                request.getMethod(), request.getRequestURI(), request.getQueryString());
         categoryService.deleteCategoryAdmin(catId);
     }
 }

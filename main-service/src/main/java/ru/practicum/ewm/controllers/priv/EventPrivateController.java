@@ -26,44 +26,65 @@ public class EventPrivateController {
     private final EventService eventService;
 
     @GetMapping
-    public List<EventShortDto> getEvents(HttpServletRequest request, @NotNull @Positive @PathVariable(required = false) Long userId, @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from, @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
-        log.info("Request to the endpoint was received: '{} {}', string of request parameters: '{}'", request.getMethod(), request.getRequestURI(), request.getQueryString());
+    public List<EventShortDto> getEvents(HttpServletRequest request,
+                                         @NotNull @Positive @PathVariable(required = false) Long userId,
+                                         @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                         @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
+        log.info("Request to the endpoint was received: '{} {}', string of request parameters: '{}'",
+                request.getMethod(), request.getRequestURI(), request.getQueryString());
         log.info("Get user with userId={}, from={}, size={}", userId, from, size);
         return eventService.getEventsPrivate(userId, from, size);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public EventFullDto addEvent(HttpServletRequest request, @Positive @PathVariable Long userId, @NotNull @Valid @RequestBody NewEventDto newEventDto) {
-        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'", request.getMethod(), request.getRequestURI(), request.getQueryString());
+    public EventFullDto addEvent(HttpServletRequest request,
+                                 @Positive @PathVariable Long userId,
+                                 @NotNull @Valid @RequestBody NewEventDto newEventDto) {
+        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'",
+                request.getMethod(), request.getRequestURI(), request.getQueryString());
         log.info("Create event with userId={}", userId);
         return eventService.addEventPrivate(userId, newEventDto);
     }
 
     @GetMapping("/{eventId}")
-    public EventFullDto getEvent(HttpServletRequest request, @Positive @PathVariable(required = false) Long userId, @Positive @PathVariable(required = false) Long eventId) {
-        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'", request.getMethod(), request.getRequestURI(), request.getQueryString());
+    public EventFullDto getEvent(HttpServletRequest request,
+                                 @Positive @PathVariable(required = false) Long userId,
+                                 @Positive @PathVariable(required = false) Long eventId) {
+        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'",
+                request.getMethod(), request.getRequestURI(), request.getQueryString());
         log.info("Get user with userId={}, eventId={} ", userId, eventId);
         return eventService.getEventPrivate(userId, eventId);
     }
 
     @PatchMapping("/{eventId}")
-    public EventFullDto updateEventUserRequest(HttpServletRequest request, @Positive @PathVariable(required = false) Long userId, @Positive @PathVariable(required = false) Long eventId, @Valid @RequestBody UpdateEventUserRequest updateEventUserRequest) {
-        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'", request.getMethod(), request.getRequestURI(), request.getQueryString());
+    public EventFullDto updateEventUserRequest(HttpServletRequest request,
+                                               @Positive @PathVariable(required = false) Long userId,
+                                               @Positive @PathVariable(required = false) Long eventId,
+                                               @Valid @RequestBody UpdateEventUserRequest updateEventUserRequest) {
+        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'",
+                request.getMethod(), request.getRequestURI(), request.getQueryString());
         log.info("Обновлен ивент с userId={} и eventId={}", userId, eventId);
         return eventService.updateEventPrivate(userId, eventId, updateEventUserRequest);
     }
 
     @GetMapping("/{eventId}/requests")
-    public List<ParticipationRequestDto> getRequestsEventsUser(HttpServletRequest request, @Positive @PathVariable Long userId, @Positive @PathVariable Long eventId) {
-        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'", request.getMethod(), request.getRequestURI(), request.getQueryString());
+    public List<ParticipationRequestDto> getRequestsEventsUser(HttpServletRequest request,
+                                                               @Positive @PathVariable Long userId,
+                                                               @Positive @PathVariable Long eventId) {
+        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'",
+                request.getMethod(), request.getRequestURI(), request.getQueryString());
         log.info("Получен запрос с userId={}, eventId={}", userId, eventId);
         return eventService.getRequestsEventsUserPrivate(userId, eventId);
     }
 
     @PatchMapping("/{eventId}/requests")
-    public EventRequestStatusUpdateResult updateEventRequestStatus(HttpServletRequest request, @Positive @PathVariable Long userId, @Positive @PathVariable Long eventId, @Valid @RequestBody EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest) {
-        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'", request.getMethod(), request.getRequestURI(), request.getQueryString());
+    public EventRequestStatusUpdateResult updateEventRequestStatus(HttpServletRequest request,
+                                                                   @Positive @PathVariable Long userId,
+                                                                   @Positive @PathVariable Long eventId,
+                                                                   @Valid @RequestBody EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest) {
+        log.info("Запрос к конечной точке получен: '{} {}', строка параметров запроса: '{}'",
+                request.getMethod(), request.getRequestURI(), request.getQueryString());
         log.info("Обновлен статус запроса с userId={} и eventId={}", userId, eventId);
         return eventService.updateEventRequestStatusPrivate(userId, eventId, eventRequestStatusUpdateRequest);
     }
